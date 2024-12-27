@@ -1,0 +1,54 @@
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.linear_model import LogisticRegression
+from sklearn.svm import SVC
+from sklearn.metrics import classification_report, accuracy_score
+# loading the data from csv file to a pandas Dataframe
+raw_mail_data = pd.read_csv('/content/spam.csv', encoding='latin1')
+print(raw_mail_data)
+# printing the first 5 rows of the dataframe
+raw_mail_data.head()
+#Dataset information
+raw_mail_data.info()
+#Dataset description
+raw_mail_data.describe()
+#first five rows of the dataset
+print(raw_mail_data.head())
+# Step 1: Load and preprocess data
+raw_mail_data = pd.read_csv('/content/spam.csv', encoding='latin1')  # Load dataset
+X = raw_mail_data['v2']  # SMS text data
+y = raw_mail_data['v1']  # Labels (spam or ham)
+# Step 2: Split data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+# Step 3: Feature Engineering - Convert text data into numerical features using TF-IDF
+tfidf_vectorizer = TfidfVectorizer(stop_words='english')
+X_train_tfidf = tfidf_vectorizer.fit_transform(X_train)
+X_test_tfidf = tfidf_vectorizer.transform(X_test)
+# Step 4: Model Selection and Training
+# Train Naive Bayes Classifier
+nb_classifier = MultinomialNB()
+nb_classifier.fit(X_train_tfidf, y_train)
+# Train Logistic Regression Classifier
+lr_classifier = LogisticRegression()
+lr_classifier.fit(X_train_tfidf, y_train)
+# Train Support Vector Machine Classifier
+svm_classifier = SVC(kernel='linear')
+svm_classifier.fit(X_train_tfidf, y_train)
+# Step 5: Model Evaluation
+# Evaluate Naive Bayes Classifier
+nb_predictions = nb_classifier.predict(X_test_tfidf)
+print("Naive Bayes Classifier:")
+print(classification_report(y_test, nb_predictions))
+print("Accuracy:", accuracy_score(y_test, nb_predictions))
+# Evaluate Logistic Regression Classifier
+lr_predictions = lr_classifier.predict(X_test_tfidf)
+print("\nLogistic Regression Classifier:")
+print(classification_report(y_test, lr_predictions))
+print("Accuracy:", accuracy_score(y_test, lr_predictions))
+# Evaluate Support Vector Machine Classifier
+svm_predictions = svm_classifier.predict(X_test_tfidf)
+print("\nSupport Vector Machine Classifier:")
+print(classification_report(y_test, svm_predictions))
+print("Accuracy:", accuracy_score(y_test, svm_predictions))
